@@ -25,8 +25,8 @@ def export_porra_toda(schema):
   
 
 
-
-
+   caminho = "C:\Users\luizloja\AppData\Roaming\MySQL\Workbench\modules\migration\\"
+   contador_tabela = 0
   # create the list of possible foreign keys from the list of tables
    print "--Tables - --------------------------------------"
    for table in schema.tables:
@@ -58,18 +58,13 @@ def export_porra_toda(schema):
             dict_fk[maiu_column]['primary_key'] = column.name
             dict_fk[maiu_column]['table'] =  column.owner.name   
 
-
-
-
-
-
-
-      f = open("C:\Users\luizloja\AppData\Roaming\MySQL\Workbench\modules\migration\\" + formatar_data() + "_create_" + table.name + ".rb", "w")
+      contador_tabela +=1 
+      f = open(caminho + formatar_data(contador_tabela) + "_create_" + table.name + ".rb", "w")
       f.write("class Create" + camelize(table.name) + " < ActiveRecord::Migration[5.1]\n")
       f.write("   def change\n")
       f.write("      create_table :" +table.name + no_default_key  + " do |t|\n")
       
-      
+      instrucao_chaves = ""
       quantidade_colunas = len(table.columns) 
       contador = 1
       for column in table.columns:
@@ -97,43 +92,63 @@ def export_porra_toda(schema):
 
 
             if dict_fk.get(column.name) != None: 
-               instrucao_coluna = "t.foreign_key :" + dict_fk[column.name]['table'] + ", column: :"+ column.name +", primary_key: '"+ dict_fk[column.name]['primary_key'] +"' "
-              
+               instrucao_coluna += "\n         t.index :" + column.name + ", name: :index_" + table.name + "_" +  str(contador)  
+
 
             contador += 1
             f.write("         "+instrucao_coluna+"\n")
+
+         if dict_fk.get(column.name) != None: 
+               instrucao_chaves += "\n         t.foreign_key :" + dict_fk[column.name]['table'] + ", column: :"+ column.name +", primary_key: '"+ dict_fk[column.name]['primary_key'] +"' "              
+
+
+      contador = 0
+      for indice in table.indices:
+         if indice.indexType == 'UNIQUE':
+            colunas_index =  agrupar_nome_virgula(indice.columns,'referencedColumn',1) 
+            f.write("         t.index [" + colunas_index + "], unique: true, name: :" + table.name + "_index_u_" + str(contador) + "\n" )
+            contador += 1 
+
 
       f.write("      end\n")
       f.write("   end\n")
       f.write("end\n")
       f.close()
+      
+##Indices unicos
+
+
+      if  instrucao_chaves != "":
+         f = open(caminho + formatar_data(contador_tabela+ len(schema.tables) + 1 ) + "_change_" + table.name + ".rb", "w")
+         f.write("class Change" + camelize(table.name) + " < ActiveRecord::Migration[5.1]\n")
+         f.write("   def change\n")
+         f.write("      change_table :" +table.name + no_default_key  + " do |t|\n")
+         f.write(instrucao_chaves)
+         f.write("      end\n")
+         f.write("   end\n")
+         f.write("end\n")
+         f.close()
 
    
 ##Chave estrangei
    print "--Foreign keys - --------------------------------------"
 
 
-##Indices unicos
-   print "--Unique INDEX - --------------------------------------"
-   for table in schema.tables:
-      for indice in table.indices:
-         if indice.indexType == 'UNIQUE':
-           # intrucao_tabela = "ALTER TABLE " + table.name + " ADD CONSTRAINT " + indice.name + " UNIQUE ("
-            intrucao_tabela = "ALTER TABLE " + table.name + " ADD  UNIQUE ("
-            colunas_index = agrupar_nome_virgula(indice.columns,'referencedColumn')
-            intrucao_tabela += colunas_index + ");"
-            print intrucao_tabela 
+
 
 #Metodos 
-def agrupar_nome_virgula (colunas, tipo='column'):
+def agrupar_nome_virgula (colunas, tipo='column', simbolo=0):
     contador_colunas = 1 
     quantidade_colunas =  len(colunas) 
     intrucao_campo_chave = ""
+    dois_pontos = ":"
+    if simbolo == 0:
+        dois_pontos = "" 
     for column in colunas:
         if tipo == 'column':     
-           intrucao_campo_chave += column.name
+           intrucao_campo_chave += dois_pontos + column.name
         elif tipo == 'referencedColumn':     
-           intrucao_campo_chave += column.referencedColumn.name
+           intrucao_campo_chave += dois_pontos + column.referencedColumn.name
 
         if quantidade_colunas != contador_colunas: 
            intrucao_campo_chave += ","
@@ -147,9 +162,9 @@ def camelize (palavra):
 		nome_completo += palavra.capitalize()
 	return nome_completo 
 
-def formatar_data():
-    x = datetime.datetime.now()
-    return x.strftime("%Y%m%d%H%M%S")
+def formatar_data(count=0):
+    tempo = datetime.datetime.now()
+    return str(int(tempo.strftime("%Y%m%d%H%M%S")) + count)
 
 def convert_migration_type (column):
     if column.userType != None:
