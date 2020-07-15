@@ -1,20 +1,32 @@
 #Author: Luiz Fernando Batista Loja
 #QueryExportPostgresPlugin:
-#Generate ddl for postgresql 
+#Generate migrations for rails
 
 #Workbench imports
 from wb import *
 import grt
 import datetime
+import mforms
 
 #Plugin definition
-ModuleInfo = DefineModule(name='QueryExportPostgres', author='Luiz Fernando Batista Loja', version='1.0')
-@ModuleInfo.plugin("sample.exportToPostgres",
-  caption="Export the ddl to postgres",
-  input=[wbinputs.objectOfClass("db.mysql.schema")],
-  groups=["Overview/Utility"])
+#ModuleInfo = DefineModule(name='RailsMigrations', author='Luiz Loja', version='1.0')
+ModuleInfo = DefineModule(name= "AutoRelationshipUtils", author= "Oracle Corp.", version="1.0")
+
+@ModuleInfo.plugin("wb.catalog.util.autoCreateRelationships", caption= "Create Relationships from Columns", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog", type="standalone")
+@ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
+
+#@ModuleInfo.plugin("wb.sqlide.migrationrails",
+#  caption="Export Migration",
+#  pluginMenu= "Catalog", 
+#  input=[wbinputs.objectOfClass("db.mysql.schema")],
+#  type="standalone")
   
-@ModuleInfo.export(grt.INT, grt.classes.db_mysql_Schema)
+  
+  
+
+
+
+#@ModuleInfo.export(grt.INT, grt.classes.db_mysql_Schema)
 
 
 
@@ -213,3 +225,4 @@ mapa_type = {
 }
 #print grt.root.wb.doc.physicalModels[0].catalog.schemata[0]
 export_porra_toda(grt.root.wb.doc.physicalModels[0].catalog.schemata[0])
+
