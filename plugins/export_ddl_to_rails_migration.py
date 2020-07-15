@@ -131,14 +131,6 @@ class RelationshipCreator(mforms.Form):
       self.candidateTree.set_string(row, 5, ref_column.formattedType)
     self.matchCount.set_text("%i matches found" % len(candidates))
  
-  def createFKs(self):
-      print "CHeugie"
-      file_chooser = mforms.newFileChooser(self,3,1)
-      file_chooser.set_title("Choose a directory!")
-      print file_chooser.get_path()
-      file_chooser.run_modal()
-      print "Passei"
-
   def choose_directory(self):
       file_chooser = mforms.newFileChooser(self,3,1)
       file_chooser.set_title("Choose a directory!")
@@ -165,8 +157,8 @@ class RelationshipCreator(mforms.Form):
        contador_tabela = 0
       # create the list of possible foreign keys from the list of tables
        print "--Tables - --------------------------------------"
+       scaffold = "" 
        for table in schema.tables:
-          print "  "
           #print table.inserts.methods
           #print table.foreignKeys.columns
           #print table.name
@@ -201,14 +193,15 @@ class RelationshipCreator(mforms.Form):
           rails_field_name= ""
           rails_format= ""
           file = data_formatada + "_create_" + table.name + ".rb"
+          scaffold += "rails generate ext_scaffold " +  table.name + " "
           contador_tabela +=1 
-
+ 
           f = open(caminho + file , "w")
           f.write("class Create" + rails_name + " < ActiveRecord::Migration[5.1]\n")
           f.write("   def change\n")
           f.write("      create_table :" +table.name + no_default_key  + " do |t|\n")
 
-
+          
           instrucao_chaves = ""
           quantidade_colunas = len(table.columns) 
           contador = 1
@@ -228,6 +221,10 @@ class RelationshipCreator(mforms.Form):
 
                 rails_format = converted_field
                 rails_field_name = column.name 
+                
+                if column.name != 'created_at' and  column.name != 'updated_at' and column.name != 'deleted_at':
+                   scaffold += rails_field_name + ":"
+
                 self.addRow(column,rails_name,rails_field_name,rails_format,file)
 
                 if column.length != -1 :
@@ -244,15 +241,24 @@ class RelationshipCreator(mforms.Form):
                 if dict_fk.get(column.name) != None: 
                    instrucao_coluna += "\n         t.index :" + column.name + ", name: :index_" + table.name + "_" +  str(contador)  
 
-
                 contador += 1
                 f.write("         "+instrucao_coluna+"\n")
              
 
-             print dict_fk.get(column.name)
+             
              if dict_fk.get(column.name) != None: 
                    instrucao_chaves += "\n         t.foreign_key :" + dict_fk[column.name]['table'] + ", column: :"+ column.name +", primary_key: '"+ dict_fk[column.name]['primary_key'] +"' "              
+                   scaffold +=  "combo[" + dict_fk[column.name]['table'] + ".nome] "    
+             else:
+                   if column.simpleType != None and column.simpleType.name == 'SET':
+                      campos_check = column.datatypeExplicitParams 
+                      campos_check = campos_check.replace("'", "").replace("(","").replace(")","")
+                      scaffold +=  "check[" + campos_check  + "] "    
+                   else: 
+                      if column.name != 'created_at' and  column.name != 'updated_at' and column.name != 'deleted_at':
+                         scaffold += rails_format + " "  
 
+          
           contador = 0
           for indice in table.indices:
              if indice.indexType == 'UNIQUE':
@@ -276,6 +282,10 @@ class RelationshipCreator(mforms.Form):
              f.write("   end\n")
              f.write("end\n")
              f.close()
+          scaffold += "\n"
+         
+       print "Scaffold"
+       print scaffold
 
   def agrupar_nome_virgula (self,colunas, tipo='column', simbolo=0):
         contador_colunas = 1 
@@ -333,4 +343,4 @@ def autoCreateRelationships(catalog):
   form.run()
   return 0
 
-#autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
+autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
