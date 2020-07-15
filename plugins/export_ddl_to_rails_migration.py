@@ -348,7 +348,7 @@ class RelationshipCreator(mforms.Form):
     
     
 
-ModuleInfo = DefineModule(name= "MigrationsRails", author= "Oracle Corp.", version="1.0")
+ModuleInfo = DefineModule(name= "MigrationsRails", author= "Luiz Loja", version="1.0")
 @ModuleInfo.plugin("wb.catalog.util.autoCreateRelationships", caption= "Create Migration Files", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog", type="standalone")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def autoCreateRelationships(catalog):
@@ -356,4 +356,4 @@ def autoCreateRelationships(catalog):
   form.run()
   return 0
 
-autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
+#autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
