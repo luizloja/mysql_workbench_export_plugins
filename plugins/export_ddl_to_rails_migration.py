@@ -333,4 +333,4 @@ def autoCreateRelationships(catalog):
   form.run()
   return 0
 
-autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
+#autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
