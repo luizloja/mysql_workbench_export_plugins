@@ -12,34 +12,9 @@ import mforms
 ModuleInfo = DefineModule(name= "AutoRelationshipUtils", author= "Luiz Loja", version="1.0")
 
 
-def get_fk_candidate_list(schema, fk_name_format, match_types=False):
-    candidate_list = []
-    possible_fks = {}
-    # create the list of possible foreign keys out of the list of tables
-    for table in schema.tables:
-        if table.primaryKey and len(table.primaryKey.columns) == 1: # composite FKs not supported
-            format_args = {'table':table.name, 'pk':table.primaryKey.columns[0].name}
-            fkname = fk_name_format % format_args
-            possible_fks[fkname] = table
-
-    # go through all tables in schema again, this time to find columns that seem to be a fk
-    for table in schema.tables:
-        for column in table.columns:
-            if possible_fks.has_key(column.name):
-                ref_table = possible_fks[column.name]
-                ref_column = ref_table.primaryKey.columns[0].referencedColumn
-                if ref_column == column:
-                    continue
-                if match_types and ref_column.formattedType != column.formattedType:
-                    continue
-
-                candidate_list.append((table, column, ref_table, ref_column))
-    return candidate_list
-
-
 class RelationshipCreator(mforms.Form):
   def __init__(self, catalog):
-    mforms.Form.__init__(self, None, mforms.FormNone)
+    mforms.Form.__init__(self, None, mforms.FormNormal)
 
     self.catalog = catalog
 
@@ -95,10 +70,11 @@ class RelationshipCreator(mforms.Form):
     self.cancelButton = mforms.newButton()
     self.cancelButton.set_text("Cancel")
     hbox.add_end(self.cancelButton, False, True)
+
     self.okButton = mforms.newButton()
-    self.okButton.set_text("Create FKs")
+    self.okButton.set_text("Thanks!")
     hbox.add_end(self.okButton, False, True)
-    self.okButton.add_clicked_callback(self.createFKs)
+    #self.okButton.add_clicked_callback(self.createFKs)
     box.add(hbox, False, True)
 
     self.set_size(700, 600)
@@ -342,6 +318,7 @@ class RelationshipCreator(mforms.Form):
            return 'text'       
 
   def run(self):
+    
     self.run_modal(self.okButton, self.cancelButton)
 
 
@@ -356,4 +333,4 @@ def autoCreateRelationships(catalog):
   form.run()
   return 0
 
-#autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
+autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
