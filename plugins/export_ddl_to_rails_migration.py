@@ -9,7 +9,7 @@ import mforms
 
 
 # define this Python module as a GRT module
-ModuleInfo = DefineModule(name= "AutoRelationshipUtils", author= "Luiz Loja", version="1.0")
+ModuleInfo = DefineModule(name= "Migration Rails", author= "Luiz Loja", version="1.0")
 
 
 class RelationshipCreator(mforms.Form):
@@ -284,8 +284,12 @@ class RelationshipCreator(mforms.Form):
              f.close()
           scaffold += "\n"
          
-       print "Scaffold"
-       print scaffold
+
+       f = open(caminho + "scaffolds.txt", "w")
+       f.write("#scaffolds\n")
+       f.write(scaffold)
+       f.close()
+
 
   def agrupar_nome_virgula (self,colunas, tipo='column', simbolo=0):
         contador_colunas = 1 
@@ -336,11 +340,10 @@ class RelationshipCreator(mforms.Form):
     
 
 ModuleInfo = DefineModule(name= "MigrationsRails", author= "Luiz Loja", version="1.0")
-@ModuleInfo.plugin("wb.catalog.util.autoCreateRelationships", caption= "Create Migration Files", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog", type="standalone")
+@ModuleInfo.plugin("wb.catalog.util.migrationRails", caption= "Create Migration Files", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog", type="standalone")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def autoCreateRelationships(catalog):
   form = RelationshipCreator(catalog)
   form.run()
   return 0
 
-autoCreateRelationships(grt.root.wb.doc.physicalModels[0].catalog)
