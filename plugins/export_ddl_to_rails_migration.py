@@ -26,10 +26,9 @@ class RelationshipCreator(mforms.Form):
     box.set_spacing(12)
 
     label = mforms.newLabel(
-"""This is going to create all migration files necessary in Rails 
-   application. 
-
-   To use it, you must inform the path where the files will be created.""")
+"""This is going to create all migration files necessary in Rails application. 
+   It also creates a scaffold.txt with scaffold commands to be customized, as you wish my Lord.  
+   To use it, you must inform the path where the files will be created and click on Create Files button.""")
     box.add(label, False, True)
 
     hbox = mforms.newBox(True)
@@ -152,7 +151,6 @@ class RelationshipCreator(mforms.Form):
         
   def export_porra_toda(self):
        schema = self.catalog.schemata[0]
-       #"C:\Users\luizloja\AppData\Roaming\MySQL\Workbench\modules\migration\\"
        caminho = self.pattern.get_string_value() + "\\" 
        contador_tabela = 0
       # create the list of possible foreign keys from the list of tables
@@ -340,7 +338,7 @@ class RelationshipCreator(mforms.Form):
     
 
 ModuleInfo = DefineModule(name= "MigrationsRails", author= "Luiz Loja", version="1.0")
-@ModuleInfo.plugin("wb.catalog.util.migrationRails", caption= "Create Migration Files", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog", type="standalone")
+@ModuleInfo.plugin("wb.catalog.util.migrationRails", caption= "Create Migration Files", input= [wbinputs.currentCatalog()], pluginMenu= "Utilities", type="standalone")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def autoCreateRelationships(catalog):
   form = RelationshipCreator(catalog)
