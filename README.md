@@ -2,8 +2,8 @@
 I loved the Mysql Workbench tool, nevertheless I was never a big mysql fan. So I decided to create a project to develop some plugins to export from Mysql Workbench to other plataforms as postgres, rails migration and laravel migration
 
 ## What does it?
-This plugin generate all migration files for Rails based on the relational model. 
-It also create a scaffold file with all scaffolds commands.
+This plugin generates all migration files for Rails based on the relational model. 
+It also creates a scaffold file with all scaffolds commands.
 It makes sure that no body will ever forget that foreign key ;).
 
 ### Installation
@@ -15,7 +15,7 @@ It makes sure that no body will ever forget that foreign key ;).
 ### Usage
 1. Open a schem 
 2. Click on Tools -> Utilities -> Create Migration Files
-3. A form will open
+3. A Window will open
 4. Select the place where your files will be created at ...
 5. Click on Create Files button
 6. Cheers, that's it dude :)
