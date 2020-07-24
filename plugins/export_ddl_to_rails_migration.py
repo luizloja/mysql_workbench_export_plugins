@@ -85,6 +85,7 @@ class RelationshipCreator(mforms.Form):
     'VARCHAR': 'string', 
     'DECIMAL': 'decimal', 
     'DATETIME': 'timestamp', 
+    'DATE': 'date', 
     'BLOB': 'binary', 
     'BINARY': 'binary', 
     'LONGBLOB': 'binary', 
